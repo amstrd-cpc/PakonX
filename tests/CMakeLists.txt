@@ -142,3 +142,15 @@ add_executable(process_test process/process_test.cpp)
 target_link_libraries(process_test PRIVATE pakon_process)
 target_include_directories(process_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(NAME process COMMAND process_test)
+
+# pakon-cli's own argument dispatch: `boot --firmware DIR --live` (what
+# PakonX runs on Linux/macOS) must reach the boot command. A missing
+# firmware folder ends it at STEP-A, before any USB enumeration or request.
+# (1.0.0 rejected `--firmware` as an unexpected argument.)
+if(PAKON_BUILD_APPS)
+    add_test(NAME cli_boot_args
+             COMMAND pakon-cli boot --firmware ${CMAKE_CURRENT_BINARY_DIR}/no-such-firmware --live)
+    set_tests_properties(cli_boot_args PROPERTIES
+        PASS_REGULAR_EXPRESSION "STEP-A  FIRMWARE NOT FOUND"
+        FAIL_REGULAR_EXPRESSION "unexpected argument")
+endif()
