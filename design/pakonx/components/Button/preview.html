@@ -1,0 +1,17 @@
+<!-- @dsCard group="Actions" height=96 subtitle="Default · Go · Danger · Pressed · Disabled" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Button — preview</title>
+<style>body{margin:0;padding:24px;background:var(--surface)}#root{display:flex;flex-wrap:wrap;gap:8px;align-items:center}</style></head>
+<body>
+<div id="root" class="pk-root"></div>
+<script>
+  var P = window.PakonX, r = document.getElementById('root');
+  r.appendChild(P.Button({ label: 'Scan roll', variant: 'go' }));
+  r.appendChild(P.Button({ label: 'Preview' }));
+  var p = P.Button({ label: 'Pressed' }); p.classList.add('is-pressed'); r.appendChild(p);
+  r.appendChild(P.Button({ label: 'Discard roll', variant: 'danger' }));
+  r.appendChild(P.Button({ label: 'Eject', disabled: true }));
+</script>
+</body>
+</html>

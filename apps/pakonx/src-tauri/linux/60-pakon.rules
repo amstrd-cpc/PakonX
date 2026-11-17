@@ -1,0 +1,4 @@
+# PakonX: the Pakon F-135+ scanner for the logged-in user (libusb).
+# 0f05:f235 = cold board (firmware load), 0f05:f135 = booted scanner.
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0f05", ATTRS{idProduct}=="f235", MODE="0660", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0f05", ATTRS{idProduct}=="f135", MODE="0660", TAG+="uaccess"

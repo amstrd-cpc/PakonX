@@ -1,0 +1,129 @@
+# PakonX for Linux and macOS, built on GitHub's runners (no Mac needed).
+# Windows x64 and Windows ARM64 are built on the Windows PC
+# (tools/build-windows-arm64.ps1): they bundle the OEM look and the
+# signed driver catalog, which are not in git.
+#
+# Secrets (Settings > Secrets and variables > Actions), for update
+# signatures; without them the build makes no updater files:
+#   TAURI_SIGNING_PRIVATE_KEY, TAURI_SIGNING_PRIVATE_KEY_PASSWORD
+name: desktop
+
+permissions:
+  contents: write # attach the builds to the tag's release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+env:
+  # The firmware the frozen boot reference loads (tools/pakon_boot_reference.ps1),
+  # fetched from the same place and MD5-gated the same way; not in git.
+  FW_URL: https://raw.githubusercontent.com/plonsker/pakon-scanning-software/master/Pakon%20Update/fx35install/program%20files/Pakon/F-135/F135Driver/
+  FW_LDR_MD5: 6be781bad6fb9cf7ade4095baed336e0
+  FW_HEX_MD5: 07f5001a951c4be179008d948be82b69
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04 # oldest glibc still supported: the AppImage runs on more distros
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain and libraries
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -y g++-13 cmake pkg-config libusb-1.0-0-dev \
+            libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+      - name: Firmware
+        run: |
+          d=apps/pakonx/src-tauri/firmware; mkdir -p $d
+          curl -fsSL "${FW_URL}F235Ldr.sys" -o $d/F235Ldr.sys
+          curl -fsSL "${FW_URL}Pakon7.hex" -o $d/Pakon7.hex
+          echo "$FW_LDR_MD5  $d/F235Ldr.sys" | md5sum -c
+          echo "$FW_HEX_MD5  $d/Pakon7.hex" | md5sum -c
+      - name: pakon-cli and tests
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-13 \
+            -DCMAKE_EXE_LINKER_FLAGS="-static-libstdc++ -static-libgcc"
+          cmake --build build -j
+          ctest --test-dir build --output-on-failure
+          cp build/apps/pakon-cli/pakon-cli apps/pakonx/src-tauri/binaries/pakon-cli-x86_64-unknown-linux-gnu
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: dtolnay/rust-toolchain@stable
+      - name: PakonX
+        working-directory: apps/pakonx
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          npm ci
+          extra=""; [ -z "$TAURI_SIGNING_PRIVATE_KEY" ] && extra='--config {"bundle":{"createUpdaterArtifacts":false}}'
+          npx tauri build $extra
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pakonx-linux-x64
+          path: |
+            apps/pakonx/src-tauri/target/release/bundle/deb/*.deb
+            apps/pakonx/src-tauri/target/release/bundle/appimage/*.AppImage*
+      - name: Attach to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            apps/pakonx/src-tauri/target/release/bundle/deb/*.deb
+            apps/pakonx/src-tauri/target/release/bundle/appimage/*.AppImage
+
+  macos:
+    runs-on: macos-15 # Apple Silicon; builds one universal app (arm64 + x86_64)
+    env:
+      MACOSX_DEPLOYMENT_TARGET: '13.3' # std::format with floating point (libc++)
+    steps:
+      - uses: actions/checkout@v4
+      - name: libusb (static, universal)
+        run: |
+          curl -fsSL https://github.com/libusb/libusb/releases/download/v1.0.27/libusb-1.0.27.tar.bz2 | tar xj
+          cd libusb-1.0.27
+          ./configure --prefix=$HOME/libusb --disable-shared --enable-static \
+            CFLAGS="-arch arm64 -arch x86_64 -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
+          make -j4 install
+      - name: Firmware
+        run: |
+          d=apps/pakonx/src-tauri/firmware; mkdir -p $d
+          curl -fsSL "${FW_URL}F235Ldr.sys" -o $d/F235Ldr.sys
+          curl -fsSL "${FW_URL}Pakon7.hex" -o $d/Pakon7.hex
+          [ "$(md5 -q $d/F235Ldr.sys)" = "$FW_LDR_MD5" ] && [ "$(md5 -q $d/Pakon7.hex)" = "$FW_HEX_MD5" ]
+      - name: pakon-cli (universal)
+        run: |
+          brew list pkg-config >/dev/null 2>&1 || brew install pkg-config
+          PKG_CONFIG_PATH=$HOME/libusb/lib/pkgconfig cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DPAKON_BUILD_TESTS=OFF
+          cmake --build build -j
+          lipo -info build/apps/pakon-cli/pakon-cli
+          cp build/apps/pakon-cli/pakon-cli apps/pakonx/src-tauri/binaries/pakon-cli-universal-apple-darwin
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: dtolnay/rust-toolchain@stable
+        with: { targets: 'aarch64-apple-darwin,x86_64-apple-darwin' }
+      - name: PakonX
+        working-directory: apps/pakonx
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          npm ci
+          extra=""; [ -z "$TAURI_SIGNING_PRIVATE_KEY" ] && extra='--config {"bundle":{"createUpdaterArtifacts":false}}'
+          npx tauri build --target universal-apple-darwin $extra
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pakonx-macos-universal
+          path: |
+            apps/pakonx/src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+            apps/pakonx/src-tauri/target/universal-apple-darwin/release/bundle/macos/*.app.tar.gz*
+
+      - name: Attach to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            apps/pakonx/src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg

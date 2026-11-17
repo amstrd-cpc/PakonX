@@ -1,0 +1,18 @@
+[package]
+name = "pakonx"
+version = "1.0.0"
+description = "PakonX — desktop front end for the Kodak/Pakon F-X35 scanners"
+edition = "2021"
+publish = false
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset"] }
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+image = { version = "0.25", default-features = false, features = ["jpeg", "tiff", "bmp"] }
+# Updates from the PakonX site, signed (updater.rs).
+tauri-plugin-updater = "2"

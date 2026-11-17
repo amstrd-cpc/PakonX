@@ -1,0 +1,15 @@
+<!-- @dsCard group="Status" height=72 subtitle="Scanner and frame state" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>StatusChip — preview</title>
+<style>body{margin:0;padding:24px;background:var(--surface)}#root{display:flex;flex-wrap:wrap;gap:8px}</style></head>
+<body>
+<div id="root" class="pk-root"></div>
+<script>
+  var P = window.PakonX, r = document.getElementById('root');
+  [['Warm', 'ok'], ['Lamp warming', 'warn'], ['USB lost', 'danger'], ['Cold ROM', 'neutral'], ['Roll 0412', 'film']].forEach(function (c) {
+    r.appendChild(P.StatusChip({ label: c[0], tone: c[1] }));
+  });
+</script>
+</body>
+</html>

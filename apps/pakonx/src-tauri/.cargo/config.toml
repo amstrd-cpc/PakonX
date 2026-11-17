@@ -1,0 +1,4 @@
+# Static C runtime: PakonX.exe runs on a PC without the Visual C++
+# Redistributable (the installer does not carry it).
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]

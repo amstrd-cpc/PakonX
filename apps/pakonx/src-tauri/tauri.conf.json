@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "PakonX",
+  "version": "1.0.0",
+  "identifier": "app.pakonx.desktop",
+  "build": {
+    "frontendDist": "../web",
+    "beforeDevCommand": "node scripts/sync-design.mjs",
+    "beforeBuildCommand": "node scripts/sync-design.mjs"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "PakonX",
+        "width": 1280,
+        "height": 820,
+        "minWidth": 960,
+        "minHeight": 640
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: asset: http://asset.localhost; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com",
+      "assetProtocol": {
+        "enable": true,
+        "scope": [
+          "$APPCACHE/rolls/**"
+        ]
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQ1Nzg5Mjk3QjkyNUQ5ODEKUldTQjJTVzVsNUo0MWJQT0FtWUJkYUdoOXFEWFNMY2RXMFpJMm0wVVhIaURUOUNGSTNzN0Y2YzMK",
+      "endpoints": [
+        "https://github.com/amstrd-cpc/PakonX/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "createUpdaterArtifacts": true,
+    "resources": {
+      "firmware/": "firmware/"
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/icon.png",
+      "icons/icon.ico"
+    ],
+    "publisher": "Erik Muradian",
+    "shortDescription": "Pakon F-135+ film scanning",
+    "copyright": "© 2026 Erik Muradian",
+    "licenseFile": "../../../LICENSE"
+  }
+}

@@ -1,0 +1,7 @@
+node_modules/
+web/ds/
+src-tauri/target/
+src-tauri/gen/
+web/demo/
+src-tauri/firmware/
+src-tauri/oem/

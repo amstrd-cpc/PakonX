@@ -1,0 +1,205 @@
+/* PakonX app layout. Components and values come from the design system (ds/).
+   XP in the chrome (glossy bar, tabs, bevelled buttons), calm neutral panels
+   around the pictures. */
+html, body { height: 100%; margin: 0; }
+body { background: var(--desktop); display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; overflow: hidden; }
+
+/* App bar: the name and the task tabs on the glossy title bar. */
+.appbar { display: flex; align-items: flex-end; gap: var(--space-4); padding: var(--space-2) var(--space-4) 0;
+  background: linear-gradient(180deg, var(--titlebar-gloss) 0%, var(--titlebar) 45%, var(--titlebar) 100%);
+  box-shadow: inset 0 1px 0 var(--bevel-hi); color: var(--on-titlebar); }
+.appbar__name { font-family: var(--font-chrome); text-shadow: 1px 1px 0 #00000059; }
+.appbar__spacer { flex: 1; }
+.appbar > :not(.appbar__tabs):not(.appbar__spacer) { align-self: center; margin-bottom: var(--space-1); }
+/* Chips on the title bar read in its own white (the film chip keeps its fill). */
+.appbar .pk-chip:not(.pk-chip--film) { color: var(--on-titlebar); }
+.appbar__theme { display: flex; align-items: center; gap: var(--space-2); color: var(--on-titlebar); }
+
+/* The tab sheet's top band (the selected tab joins it); shows what runs. */
+.busyrow { display: flex; align-items: center; gap: var(--space-3); min-height: 6px; padding: 0 var(--space-4);
+  background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 1px 0 var(--line); position: relative; }
+.busyrow:has(> span:not(:empty)), .busyrow:has(> .progressrow:not([hidden])) { padding: var(--space-2) var(--space-4); }
+.busyrow > .progressrow { flex: 1; min-width: 0; }
+
+.field { height: 26px; padding: 0 var(--space-2); border: 1px solid var(--control-border); border-radius: var(--radius-sm);
+  background: var(--surface-raised); color: var(--ink); box-shadow: var(--shadow-sunken); font: 400 13px/18px var(--font-ui); }
+.row .field { width: 100%; min-width: 0; }
+.switchcell { display: flex; align-items: center; min-height: 26px; }
+.field:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.field:disabled { color: var(--ink-muted); border-color: var(--line); }
+
+/* Desk: Rolls pane · the tab's view · its inspector. The Scan tab is one wide view. */
+.desk { display: grid; grid-template-columns: 220px minmax(0, 1fr) 320px; gap: var(--space-4); padding: var(--space-4); min-height: 0; }
+.desk > .view, .desk > .inspector { display: none; min-height: 0; min-width: 0; }
+.desk > .pane { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.desk[data-tab="scan"] { grid-template-columns: minmax(0, 1fr); overflow-y: auto; }
+.desk[data-tab="scan"] > .pane { display: none; }
+.desk[data-tab="scan"] > #view-scan { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--space-4);
+  align-items: start; max-width: 1080px; width: 100%; justify-self: center; }
+.desk[data-tab="roll"] > #view-roll, .desk[data-tab="roll"] > #insp-roll,
+.desk[data-tab="table"] > #view-table, .desk[data-tab="table"] > #insp-table { display: flex; flex-direction: column; }
+.pane > .pk-window, .view > .pk-window, .inspector > .pk-window { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.pane .pk-window__body, .view .pk-window__body, .inspector .pk-window__body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.inspector .pk-window__body { overflow-y: auto; gap: 0; }
+#view-scan > .pk-window { flex: none; }
+#view-scan .pk-window__body { display: block; }
+@media (max-width: 1180px) {
+  .desk { grid-template-columns: 200px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+  .desk > .inspector { grid-column: 1 / -1; max-height: 38vh; }
+  .desk[data-tab="scan"] > #view-scan { grid-template-columns: minmax(0, 1fr); }
+}
+
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: var(--space-1) var(--space-3); margin: var(--space-3) 0 0; }
+.facts dt { color: var(--ink-muted); }
+.facts dd { margin: 0; overflow-wrap: anywhere; }
+
+/* Sections: a heading and a hairline, not a box in a box. */
+.group { min-width: 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: var(--space-3) 0 0; margin: var(--space-4) 0 0; }
+.group:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
+.group > legend { float: left; width: 100%; padding: 0 0 var(--space-3); font-weight: 700; color: var(--ink); }
+.group > legend + * { clear: both; }
+.row { display: grid; grid-template-columns: 104px minmax(0, 1fr); align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+.note { margin: 0 0 var(--space-3); color: var(--ink-muted); }
+
+/* The matte fills the loupe at a definite size, so max-height: 100% holds
+   for upright (portrait) pictures as well as landscape ones. */
+.loupe { flex: 1; min-height: 200px; position: relative; background: var(--surface-sunken);
+  box-shadow: var(--shadow-sunken); border-radius: var(--radius-md); }
+.loupe__matte { position: absolute; inset: var(--space-6); background: var(--loupe); display: flex; align-items: center;
+  justify-content: center; border-radius: 2px; padding: var(--space-4); overflow: hidden; }
+.loupe__img { max-width: 100%; max-height: 100%; min-width: 0; min-height: 0; object-fit: contain; display: block; box-shadow: var(--shadow-window); cursor: zoom-in; }
+.loupe__matte > [hidden] { display: none; }
+
+.tablehead { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; row-gap: var(--space-2); }
+.tablehead__text { flex: 1; min-width: 140px; }
+.tablehead__sub { color: var(--ink-muted); }
+.stripslot { min-height: 0; }
+.loupe__empty { text-align: center; padding: var(--space-4); background: var(--surface); border-radius: var(--radius-md); max-width: 360px; }
+.loupe__empty p { margin: var(--space-1) 0 0; color: var(--ink-muted); }
+
+/* Roll: the contact sheet fills the window and scrolls down. */
+.sheetsize { display: flex; align-items: center; gap: var(--space-2); width: 180px; }
+.sheetsize .lookrow__range { flex: 1; }
+.sheetslot { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.sheetslot > .pk-strip { flex: 1; min-height: 0; container-type: inline-size; }
+/* Six across always fit: the Size slider sets the largest frame, the
+   window's width can make them smaller (strip padding and gaps ~96px). */
+.sheetslot .pk-frame { --fw: min(var(--pk-frame-w, 160px), calc((100cqw - 96px) / 6)); width: var(--fw); height: calc(var(--fw) * 2 / 3); }
+.sheetslot > .loupe__empty { margin: var(--space-8) auto; }
+.sheetslot .pk-frame__no { font-size: 12px; }
+
+.console { flex: 1; min-height: 0; overflow: auto; margin: 0; padding: var(--space-2); background: var(--surface-sunken);
+  box-shadow: var(--shadow-sunken); border-radius: var(--radius-sm); color: var(--ink); white-space: pre-wrap; }
+.console .cmd { color: var(--accent); }
+.console .err { color: var(--danger); }
+.console .ok { color: var(--ok); }
+
+/* Status bar: scanner · roll · frames · DX, then the last log line and the Log drawer toggle. */
+.appstatus { background: var(--surface); align-items: center; }
+.appstatus__msg { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-mono); }
+.appstatus__msg.is-err { color: var(--danger); }
+.appstatus__msg.is-ok { color: var(--ok); }
+.appstatus > .appstatus__log { flex: none; border: 1px solid var(--control-border); border-radius: var(--radius-sm); background: var(--surface-raised);
+  box-shadow: var(--shadow-raised); color: var(--ink); font: 400 11px/14px var(--font-ui); padding: 1px var(--space-2); cursor: pointer; }
+.appstatus > .appstatus__log:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.logdrawer { position: fixed; left: var(--space-4); right: var(--space-4); bottom: 26px; height: min(280px, 40vh); z-index: 20; display: flex; }
+.logdrawer[hidden] { display: none; }
+.logdrawer > .pk-window { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.logdrawer .pk-window__body { flex: 1; min-height: 0; display: flex; padding: var(--space-2); }
+
+.folder { margin: var(--space-2) 0 var(--space-2); overflow-wrap: anywhere; }
+.rolls { list-style: none; margin: 0; padding: var(--space-1); flex: 1; min-height: 120px; overflow: auto; background: var(--surface-raised);
+  border: 1px solid var(--control-border); border-radius: var(--radius-sm); box-shadow: var(--shadow-sunken); }
+.rolls__item { display: flex; align-items: baseline; gap: var(--space-2); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm);
+  cursor: pointer; color: var(--ink); }
+.rolls__item:hover { outline: 1px solid var(--accent); outline-offset: -1px; }
+.rolls__item:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; }
+.rolls__item.is-selected { background: var(--selection); color: var(--on-selection); }
+.rolls__item.is-selected .rolls__mode { color: var(--on-selection); }
+.rolls__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-mono); }
+.rolls__mode { color: var(--ink-muted); }
+.rolls__empty { padding: var(--space-2); color: var(--ink-muted); }
+.pane .folder { margin: 0; font-size: 11px; line-height: 14px; color: var(--ink-muted); }
+
+.savegroup[hidden], .lookgroup[hidden], .group[hidden] { display: none; }
+.savegroup .actions { margin-top: var(--space-1); }
+.savegroup__note { margin: var(--space-2) 0 0; overflow-wrap: anywhere; }
+.picturesave { margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--line); }
+
+.progressrow { display: flex; align-items: flex-start; gap: var(--space-3); }
+.progressrow[hidden] { display: none; }
+.progressrow__bar { flex: 1; min-width: 0; }
+
+/* 100 % view: scrolls inside the loupe; app.js pads a picture smaller
+   than the view to its centre. */
+.loupe__zoom { position: absolute; inset: 0; overflow: auto; background: var(--loupe); border-radius: var(--radius-md);
+  cursor: grab; touch-action: none; }
+.loupe__zoom[hidden], .loupe__matte[hidden] { display: none; }
+.loupe__zoom.is-dragging { cursor: grabbing; }
+.loupe__zoom:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.loupe__full { display: block; max-width: none; user-select: none; }
+
+.lookrow { grid-template-columns: 72px minmax(0, 1fr) 64px; margin-bottom: var(--space-2); }
+.lookrow__range { width: 100%; min-width: 0; margin: 0; accent-color: var(--accent); }
+.lookrow__range:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.lookrow__value { text-align: right; color: var(--ink); }
+.lookrow--num { grid-template-columns: 72px 28px minmax(0, 1fr) 28px 24px; gap: var(--space-1); align-items: center; }
+.lookrow__step { min-width: 0; padding: 0; }
+.lookrow__num { width: 100%; min-width: 0; text-align: right; }
+.lookrow--num .lookrow__value { text-align: left; color: var(--ink-muted); }
+.looks { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.scangroup .actions { margin-bottom: var(--space-2); }
+.scangroup .pk-btn--go { min-width: 140px; height: 30px; }
+.confirm { display: flex; align-items: flex-start; gap: var(--space-2); margin-bottom: var(--space-2); }
+.confirm input { margin: 2px 0 0; accent-color: var(--accent); }
+.confirm input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Turned pictures: thumbnails turn in place (app.js scales them to fit). */
+.pk-frame__img { transition: transform 120ms ease-out; }
+.savegroup__note.is-error { color: var(--danger); }
+.savegroup [hidden] { display: none; }
+
+/* Folded sections: OEM look files (Settings) and Device tools (Scanner). */
+.oembox { margin: var(--space-3) 0 0; color: var(--ink-muted); }
+.oembox > summary { cursor: pointer; padding: var(--space-1) 0; }
+.oembox > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.oembox[open] > summary { color: var(--ink); }
+.oembox > .actions { margin-top: var(--space-2); }
+
+/* Dialogs (order, settings, OEM look help). */
+.helpdlg { max-width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 64px); overflow: auto; padding: var(--space-4);
+  border: 1px solid var(--control-border); border-radius: var(--radius-md); background: var(--surface); color: var(--ink);
+  box-shadow: var(--shadow-window); font-variant-ligatures: none; }
+.helpdlg::backdrop { background: #00000080; }
+.helpdlg h2 { margin: 0 0 var(--space-3); }
+.helpdlg__body h3 { margin: var(--space-3) 0 var(--space-1); }
+.helpdlg__body p, .helpdlg__body ul { margin: 0 0 var(--space-2); }
+.helpdlg__body ul { padding-left: var(--space-5, 20px); }
+.helpdlg__body li { margin-bottom: var(--space-1); }
+.helpdlg__actions { justify-content: flex-end; margin-top: var(--space-3); }
+.helpdlg [hidden] { display: none; }
+
+/* Order (Scan film) and the Settings button in the app bar. */
+.orderrow__value { overflow-wrap: anywhere; color: var(--ink); }
+.appbar__settings { margin-right: var(--space-2); }
+.helpdlg form .row { grid-template-columns: 110px minmax(0, 1fr); }
+
+/* Settings: sections in one scrolling dialog. */
+.settingsdlg { width: min(560px, calc(100vw - 32px)); }
+.settings__section { border-top: 1px solid var(--line); padding-top: var(--space-3); margin-top: var(--space-3); }
+.settings__section > h3 { margin: 0 0 var(--space-2); }
+.settings__oem .actions { margin-top: var(--space-2); }
+.settings__oem { margin-top: var(--space-1); }
+.settings__section h3 + .settings__oem, .settings__section .savegroup__note + h3 { margin-top: var(--space-3); }
+
+/* Interface text is not selectable (titles, labels, buttons); what people
+   copy stays selectable: the log, typed fields, paths and values. */
+body { -webkit-user-select: none; user-select: none; }
+.console, input, textarea, .facts dd, .folder, .orderrow__value, .appstatus__msg { -webkit-user-select: text; user-select: text; }
+.about__by { margin: 0 0 var(--space-2); font-weight: 600; }
+
+.settings__section [hidden] { display: none; }
+.appbar__update { margin-right: var(--space-2); }
+.appbar__update[hidden] { display: none; }

@@ -1,0 +1,13 @@
+<!-- @dsCard group="Navigation" height=96 subtitle="On the app bar · Selected · Hover edge" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Tabs — preview</title>
+<style>body{margin:0;background:var(--desktop)}#bar{padding:8px 16px 0;background:linear-gradient(180deg,var(--titlebar-gloss) 0%,var(--titlebar) 45%,var(--titlebar) 100%)}#panel{height:32px;background:var(--surface);border-top:1px solid var(--line)}</style></head>
+<body>
+<div id="bar"></div><div id="panel"></div>
+<script>
+  var t = window.PakonX.Tabs({ tabs: [{ id: 'scan', label: 'Scan' }, { id: 'roll', label: 'Roll' }, { id: 'table', label: 'Light table' }], selected: 'roll', label: 'Tasks' });
+  document.getElementById('bar').appendChild(t.root);
+</script>
+</body>
+</html>

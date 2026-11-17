@@ -1,0 +1,60 @@
+# Build directories
+build/
+build-*/
+
+# IDE / editor
+.vs/
+.vscode/
+.idea/
+*.user
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+compile_commands.json
+
+# Compiled artifacts
+*.o
+*.obj
+*.a
+*.lib
+*.exe
+*.dll
+*.pdb
+
+# Generated driver catalog (signed at install time — see driver/README.md)
+driver/*.cat
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+
+# Hardware session data: stays on the scanner PC. Raw USB captures carry
+# image data and EEPROM payloads (docs/HARDWARE_RUNBOOK.md §9); the EEPROM
+# dump is the unit's factory calibration. Converted sessions and diffs
+# are kept local too; commits cite them as [CAP 17373 <file> <t>].
+/*.jsonl
+/diff*.txt
+# pakon-cli frames output (frame TIFFs, positives, frames.json)
+*.frame[0-9]*.tiff
+*.frames.json
+*.pcap
+*.pcapng
+eeprom.bin
+*.pakraw
+*.scan.json
+*.scan-stats.txt
+*.console.txt
+/*.tiff
+
+# OEM proxy build output (tools/oem_proxy/build.bat)
+/tools/oem_proxy/out/
+/tools/oem_host/out/
+
+# Console logs written next to the repo root
+/*.log

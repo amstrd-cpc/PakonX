@@ -1,0 +1,19 @@
+<!-- @dsCard group="Chrome" height=300 subtitle="Title bar, body, status bar" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Window — preview</title>
+<style>body{margin:0;padding:24px;background:var(--desktop);display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}</style></head>
+<body>
+<div id="root" style="display:contents"></div>
+<script>
+  var P = window.PakonX, root = document.getElementById('root');
+  var a = P.Window({ title: 'Pakon F-135+ — Scan', status: ['Warm · 0F05:F135', 'Roll 0412', '24 frames'], mount: root });
+  a.body.innerHTML = '<div class="heading" style="margin:0 0 8px">Scan settings</div><p class="body" style="margin:0 0 16px;color:var(--ink-muted)">Insert the strip emulsion side down, then press Scan.</p>';
+  var row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;justify-content:flex-end';
+  row.appendChild(P.Button({ label: 'Cancel' })); row.appendChild(P.Button({ label: 'Scan', variant: 'go' }));
+  a.body.appendChild(row);
+  var b = P.Window({ title: 'Log console', inactive: true, mount: root });
+  b.body.innerHTML = '<pre class="data" style="margin:0;padding:8px;background:var(--surface-sunken);box-shadow:var(--shadow-sunken);border-radius:3px;color:var(--ink);white-space:pre-wrap">probe   0xA9 → C0-05-0F-35-F2-07-AA-04\nboot    stage-1 ok · Pakon7 709×A3\nenum    0F05:F135 warm</pre>';
+</script>
+</body>
+</html>

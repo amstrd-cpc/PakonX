@@ -1,0 +1,15 @@
+<!-- @dsCard group="Status" height=150 subtitle="Segmented XP bar — lamp sweep and transfer" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ScanProgress — preview</title>
+<style>body{margin:0;padding:24px;background:var(--surface);display:grid;gap:16px;max-width:520px}</style></head>
+<body>
+<div id="root" style="display:contents"></div>
+<script>
+  var P = window.PakonX, r = document.getElementById('root');
+  var a = P.ScanProgress({ tone: 'film', value: 58, left: 'Scanning · frame 14 / 24', label: 'Scan progress' });
+  var b = P.ScanProgress({ value: 82, left: 'EP6 stream · 41.3 MB', right: '82%', label: 'Transfer' });
+  r.appendChild(a.root); r.appendChild(b.root);
+</script>
+</body>
+</html>

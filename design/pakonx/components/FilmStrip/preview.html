@@ -1,0 +1,23 @@
+<!-- @dsCard group="Film" height=150 subtitle="Selectable frames on an orange-base strip" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>FilmStrip — preview</title>
+<style>body{margin:0;padding:24px;background:var(--surface)}</style></head>
+<body>
+<div id="root"></div>
+<script>
+  function scene(sky, mid, ground) {
+    return 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 64"><rect width="96" height="64" fill="' + sky + '"/><circle cx="70" cy="18" r="8" fill="#f4e3c1"/><path d="M0 40 L30 26 L52 38 L76 24 L96 34 V64 H0Z" fill="' + mid + '"/><rect y="50" width="96" height="14" fill="' + ground + '"/></svg>');
+  }
+  var frames = [
+    { no: '11', src: scene('#9db7cf', '#5d6f52', '#3a3628') },
+    { no: '12', src: scene('#c9a98a', '#6c5a4a', '#2f2a24') },
+    { no: '13', src: scene('#8fa7bd', '#4f6b5a', '#2b3329'), flagged: true },
+    { no: '14', src: scene('#d8c7a4', '#7c6a4e', '#3c3426') },
+    { no: '15', src: scene('#7e93a8', '#46586a', '#262b30') },
+    { no: '16' }
+  ];
+  document.getElementById('root').appendChild(window.PakonX.FilmStrip({ frames: frames, selected: 3, label: 'Roll 0412' }).root);
+</script>
+</body>
+</html>

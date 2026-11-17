@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en" data-theme="darkroom">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PakonX</title>
+  <link rel="stylesheet" href="ds/tokens.css">
+  <link rel="stylesheet" href="ds/bundle.css">
+  <link rel="stylesheet" href="app.css">
+  <script src="ds/bundle.js"></script>
+</head>
+<body class="pk-root">
+  <header class="appbar">
+    <span class="appbar__name heading">PakonX</span>
+    <nav class="appbar__tabs" id="tabs"></nav>
+    <span class="appbar__spacer"></span>
+    <span id="roll-chip"></span>
+  </header>
+  <!-- Moved into Settings by app.js. -->
+  <div hidden>
+    <label class="row caption appbar__theme"><span>Theme</span>
+      <select id="theme" class="field">
+        <option value="darkroom">Darkroom</option>
+        <option value="luna">Luna</option>
+      </select>
+    </label>
+  </div>
+  <!-- The tab sheet's top edge; what runs (and its progress) shows here. -->
+  <div class="busyrow" id="busyrow"></div>
+
+  <main class="desk" data-tab="scan">
+    <aside class="pane" id="pane"></aside>
+    <section class="view" id="view-scan" aria-labelledby="pk-tab-scan"></section>
+    <section class="view" id="view-roll" aria-labelledby="pk-tab-roll"></section>
+    <section class="view" id="view-table" aria-labelledby="pk-tab-table"></section>
+    <aside class="inspector" id="insp-roll"></aside>
+    <aside class="inspector" id="insp-table"></aside>
+  </main>
+
+  <footer class="pk-statusbar appstatus" id="statusbar"></footer>
+  <div class="logdrawer" id="logdrawer" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

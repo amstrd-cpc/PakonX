@@ -1,0 +1,8 @@
+{
+  "bundle": {
+    "resources": {
+      "../../../build/apps/pakon-cli/Release/pakon-cli.exe": null,
+      "../../../build-arm64/apps/pakon-cli/Release/pakon-cli.exe": "pakon-cli.exe"
+    }
+  }
+}
