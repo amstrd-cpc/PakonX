@@ -184,7 +184,10 @@ public:
         while (!s.done) {
             const auto left = std::chrono::duration_cast<std::chrono::microseconds>(until - std::chrono::steady_clock::now());
             if (left.count() <= 0) return std::optional<PipeCompletion>{};
-            timeval tv{static_cast<long>(left.count() / 1000000), static_cast<long>(left.count() % 1000000)};
+            // tv_usec is int on macOS, long on Linux: no brace narrowing.
+            timeval tv{};
+            tv.tv_sec = static_cast<decltype(tv.tv_sec)>(left.count() / 1000000);
+            tv.tv_usec = static_cast<decltype(tv.tv_usec)>(left.count() % 1000000);
             int completed = 0;
             libusb_handle_events_timeout_completed(context(), &tv, &completed);
         }
