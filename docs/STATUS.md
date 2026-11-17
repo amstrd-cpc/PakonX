@@ -56,8 +56,10 @@ builds (GCC, clang ASan/UBSan/TSan, MinGW-w64 under Wine) were last run on
    2–4 % above TLB's on strip8; it shifts the Ansel balance slightly.
 6. **Film start/end detector** is this stack's own (TLB's is unknown); the
    row cap and the run-out bound it.
-7. **LED clock 0.24 per integration unit**, DX words and lamp/TEC values are
-   fitted or replayed from captures, not derived.
+7. **LED clock 0.24 per integration unit** (fraction dropped: matches the
+   OEM's base word in all six captured configurations since 2026-11-17;
+   until then the IR modes sent 511 / 600 instead of 510 / 599), DX words and
+   lamp/TEC values are fitted or replayed from captures, not derived.
 
 ## Open
 

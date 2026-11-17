@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <format>
+#include <thread>
 
 #include "pakon/logging/logger.hpp"
 
@@ -288,7 +289,10 @@ std::vector<TeardownFrame> teardown_frames(const protocol::ControllerAddresses& 
         {"reset FIFOs (HOST 0x84)", fifos[0]},
         {"reset FIFOs (PICL 0x8A)", fifos[1]},
         {"DX stop (0x92)", ps::dx_stop(a.light)},
-        {"motor stop / disengage (0xA2)", ps::motor_stop(a.motor)},
+        // The OEM leaves 23-31 ms between 0x92 and 0xA2 in all six
+        // captures (pakon-captures serial 16402); pakon-reference gives
+        // TLB's wait as at least 20 ms (command-reference.md, teardown).
+        {"motor stop / disengage (0xA2)", ps::motor_stop(a.motor), kDxStopToMotorStop},
         {"rate = 0 (0xA5)", ps::motor_rate(a.motor, 0)},
         {"go (0xA0)", ps::motor_go(a.motor)},
         {"idle (0xA2)", ps::motor_stop(a.motor)},
@@ -318,6 +322,9 @@ const TeardownReport& ScanDevice::teardown() {
     };
     const auto idle = static_cast<std::uint16_t>(control_ & ~ps::kControlAcquire);
     for (const auto& f : teardown_frames(addresses_, idle)) {
+        if (f.wait_before.count() > 0) {
+            std::this_thread::sleep_for(f.wait_before);
+        }
         step(f.what, f.frame);
     }
     control_ = idle;

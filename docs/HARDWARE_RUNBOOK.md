@@ -11,7 +11,7 @@ ever read (allow-listed `0xA4/0x00A5` + `0xA9`; the WinUSB backend refuses
 anything else), the PIC bootloader addresses are never addressed, LED
 currents are clamped to the board ceilings, and every path that lit the
 lamp or moved the motor ends with the teardown (acquire off, lamp off, FIFO
-reset, DX stop, motor `0xA2`, then `rate 0 → go → 0xA2`) — also on errors
+reset, DX stop, 20 ms, motor `0xA2`, then `rate 0 → go → 0xA2`) — also on errors
 and Ctrl+C. Nothing touches USB without `--live-scan` (or one of the read
 commands below).
 

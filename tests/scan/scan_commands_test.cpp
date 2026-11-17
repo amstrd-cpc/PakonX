@@ -93,11 +93,16 @@ PAKON_TEST(led_ceilings_are_the_firmware_table_and_clamp) {
               std::string("02084005811400040014"));
 }
 
-PAKON_TEST(on_time_base_fits_the_four_captured_configurations) {
-    EXPECT_EQ(on_time_base(1875), 450);
-    EXPECT_EQ(on_time_base(1250), 300);
-    EXPECT_EQ(on_time_base(2813), 675);
-    EXPECT_EQ(on_time_base(4093), 982); // 0x3D6, the init block
+PAKON_TEST(on_time_base_matches_all_six_captured_configurations) {
+    // PICL 0x82 base word in pakon-captures f135plus-serial16402 (each mode
+    // file's film-pass writes); the OEM drops the fraction.
+    EXPECT_EQ(on_time_base(1875), 450); // base4
+    EXPECT_EQ(on_time_base(1250), 300); // base4-ir
+    EXPECT_EQ(on_time_base(2813), 675); // base8
+    EXPECT_EQ(on_time_base(2128), 510); // base8-ir (510.72: not 511)
+    EXPECT_EQ(on_time_base(2498), 599); // base16-ir (599.52: not 600)
+    EXPECT_EQ(on_time_base(4093), 982); // base16, and 0x3D6 in the init block
+    EXPECT_EQ(on_time_base(0xFFFF), 982); // integration clamped to 0xFFD
     EXPECT_EQ(on_time(450, 1.5), 448);  // never above base - 2
 }
 

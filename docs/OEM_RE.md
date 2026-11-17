@@ -132,7 +132,7 @@ address `[DIS TLB@0x1000a5d0]`.
 | PICL | `0x88` R4 | lamp temperatures | two u16, 1/16 °C | `[DIS TLB@0x1000b890]` |
 | PICL | `0x87` W2 | written `00 00` by bDrvInitCcd | — | semantics `[UNKNOWN]` |
 | PICL | `0x89` W1 | horizontal resample | 1 = 3/4 (Base 8) | `[DIS TLB@0x1002c340]` `[CAP base8.jsonl]` |
-| PICL | `0x8B 0x8C 0x8D 0x8F` W4 | **bDrvInitLampTemperatures** | temperature limits | `[DIS TLB@0x1002d190]` |
+| PICL | `0x8B 0x8C 0x8D 0x8F` W4 | **bDrvInitLampTemperatures** | temperature limits | `[DIS TLB@0x1002d190]`; pakon-reference splits them: `0x8B`/`0x8D` board, `0x8F`/`0x8C` lamp (relative to the setpoint) warning / fault bands, two s16 LE, 0.0625 °C `[REF command-reference.md, PR #17]` |
 | PICL | `0xD0` W1 `00`, `0xD1` W1 `01` | TEC, inside bDrvInitLampTemperatures | **literal constants** | `[DIS TLB@0x1002d190]` |
 | PICL | `0x90` R30 | DX sensor records (film presence) | §10 | `[DIS TLB@0x10009790]` |
 | PICL | `0x91` W3 | **bDrvDxStart** | `[u16 DX word][flag]` | was "SetScanLineParams / trigger" `[DIS TLB@0x1000a7b0, 0x10009bf0]` |
@@ -317,7 +317,10 @@ bytes `[CAP base4.jsonl 14.301–42.434]`.
    `bDrvResetFifos`, **`bDrvDxStop` (`0x92`)**, **`bDriveMotorStop`
    (`0xA2`)** `[DIS TLB@0x1002a900]` — exactly the captured teardown
    `0206440382006200, 020440018000, 020410018402, 040340008a, 0403400092,
-   04034400a2` `[CAP base4.jsonl 38.014–38.088]`.
+   04034400a2` `[CAP base4.jsonl 38.014–38.088]`. `0xA2` follows `0x92` by
+   23–31 ms in all six sessions `[CAP all six]`; pakon-reference gives TLB's
+   wait as at least 20 ms `[REF command-reference.md, PR #17]`. This stack
+   waits 20 ms there (`kDxStopToMotorStop`, since 2026-11-17).
 
 The OEM's motor stop is the bare `0xA2` once the acquire bit is clear; it never
 writes a rate below its clamp (1000 on the F-135+) `[DIS TLB@0x1000b6d0]`.
@@ -417,8 +420,21 @@ LED on-time register (`bDrvLampOn`, `[DIS TLB@0x1002c5f0]`):
 `base = integration × 1e6 / (2 × clk)`, each channel `round(base × duty_c)`
 clamped to `base − 2`; payload `[B, Ir, R, 0, G, base]`. The literal clock in
 `bSetF135` is 833 333.3 Hz, but every F-135+ capture fits
-`base = round(integration × 0.24)` (1875→450, 1250→300, 2813→675, 4093→982),
-i.e. an effective 2.0833 MHz `[CAP ×4] [UNKNOWN which config supplies it]`.
+`base = integration × 0.24` **with the fraction dropped** (1875→450,
+1250→300, 2813→675, 2128→510, 4093→982, 2498→599), i.e. an effective
+2.0833 MHz `[CAP all six, PICL 0x82 base word] [UNKNOWN which config supplies
+it]`. The two IR modes tell truncation from rounding (510.72, 599.52); this
+stack rounded until 2026-11-17 and sent 511 and 600 there. pakon-reference
+reads the F-135+ clock as 2.5 × the F-135's from TLB's `0x91` formula
+`[REF scanner-family.md, PR #18, INFERRED there]`.
+
+F-135 (not driven by this stack): with the literal clock the same formula
+gives `integration × 0.6`, so the init block's base is `0xFFD × 0.6` →
+`0x0997` (F-135+: `0x3D6`) `[DIS TLB@0x1002c5f0]` (this section's formula);
+pakon-reference reports both values, the F-135's own integration time per
+mode and its `0xA5` clamp 400–9500 (§3), from TLB and an F-135 run in
+open-pakon `[REF scanner-family.md, PR #18]`. None of this has been sent to
+an F-135 by this stack.
 LED currents are clamped by `FUN_100203c0` `[DIS TLB@0x100203c0]`:
 
 | Board | IR lit | R | G | B | IR |
@@ -571,6 +587,9 @@ against this runner's simulated base4 session (`sim_scan_test` with
   the code.
 - Whether the bridge's `rate=0 → go → idle` stop does anything the OEM's
   acquire-off + `0xA2` does not (the OEM never sends a rate below 1000).
+  pakon-reference now reads the bridge's August 2026 observation the same way
+  as §7 (`0xA2` does not stop the motor while acquire is on) and notes that
+  no OEM scan sends a rate of 0 `[REF film-transport.md, PR #17]`.
 - The lamp/TEC init block, Corrections and ScanPictures have not been
   observed dynamically (§11.2: needs the real KODAKCMS/ekjpegi/xerces DLLs).
 

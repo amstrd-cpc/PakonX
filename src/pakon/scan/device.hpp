@@ -74,12 +74,18 @@ struct TeardownReport {
     }
 };
 
-// The teardown frames, in order (OEM bAfterScan, then the bridge stop);
-// `idle_control` = the FPGA control word with the acquire bit clear.
+// The teardown's pause between DX stop (0x92) and motor stop (0xA2).
+inline constexpr std::chrono::milliseconds kDxStopToMotorStop{20};
+
 struct TeardownFrame {
     const char* what;
     ppb::Frame frame;
+    // Pause before this frame is sent (the OEM's DX stop -> motor stop gap).
+    std::chrono::milliseconds wait_before{0};
 };
+
+// The teardown frames, in order (OEM bAfterScan, then the bridge stop);
+// `idle_control` = the FPGA control word with the acquire bit clear.
 std::vector<TeardownFrame> teardown_frames(const protocol::ControllerAddresses& a,
                                            std::uint16_t idle_control);
 

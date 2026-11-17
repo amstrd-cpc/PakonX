@@ -14,6 +14,7 @@
 // main.cpp (which wires the production opener) is not linked here — so
 // "opener never called" is exactly "no USB code could have run".
 
+#include <chrono>
 #include <csignal>
 #include <cstdio>
 #include <format>
@@ -195,6 +196,28 @@ PAKON_TEST(dry_run_prints_the_full_plan_and_never_opens) {
     EXPECT(dry.out.find("/tmp/preflight-scan.white.tiff") != std::string::npos);
     EXPECT(dry.out.find("cold_ok=false") != std::string::npos);
     EXPECT(dry.out.find("no second connection") != std::string::npos);
+}
+
+// The teardown keeps the OEM's order, acquire off first, and waits between
+// DX stop (0x92) and the first motor stop (0xA2) as the OEM does (23-31 ms
+// in all six pakon-captures sessions); only that frame waits.
+PAKON_TEST(teardown_waits_between_dx_stop_and_motor_stop) {
+    const auto& a = protocol::kF135Plus;
+    const auto frames = scan::teardown_frames(a, 0x0060);
+    EXPECT(!frames.empty());
+    EXPECT(std::string(frames.front().what).find("acquire off") != std::string::npos);
+    int waits = 0;
+    for (std::size_t i = 0; i < frames.size(); ++i) {
+        if (frames[i].wait_before.count() == 0) {
+            continue;
+        }
+        ++waits;
+        EXPECT(i > 0);
+        EXPECT(std::string(frames[i - 1].what).find("0x92") != std::string::npos);
+        EXPECT(std::string(frames[i].what).find("0xA2") != std::string::npos);
+        EXPECT(frames[i].wait_before >= std::chrono::milliseconds(20));
+    }
+    EXPECT_EQ(waits, 1);
 }
 
 // PakonX passes --stop-on-stdin; it changes how a live run is stopped,

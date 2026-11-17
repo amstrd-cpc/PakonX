@@ -95,11 +95,15 @@ inline ppb::Frame led_on_times(std::uint8_t light, const LedOnTimes& t) {
     return ppb::make_write(light, 0x82, p);
 }
 
-// The on-time base for an integration time: round(integration × 0.24),
-// fitted on four F-135+ configurations (1875→450, 1250→300, 2813→675,
-// 4093→982; OEM_RE.md §9), integration clamped to 0xFFD.
+// The on-time base for an integration time on the F-135+: integration ×
+// 0.24 with the fraction dropped, integration clamped to 0xFFD. All six
+// F-135+ configurations (OEM_RE.md §9, pakon-captures serial 16402):
+// 1875→450, 1250→300, 2813→675, 2128→510, 4093→982, 2498→599. The two IR
+// values tell truncation from rounding (510.72, 599.52); this stack
+// rounded until 2026-11-17 and sent 511 / 600.
 inline std::uint16_t on_time_base(std::uint16_t integration) {
-    return static_cast<std::uint16_t>(std::lround(std::min<double>(integration, 0xFFD) * 0.24));
+    const auto clamped = std::min<std::uint32_t>(integration, 0xFFD);
+    return static_cast<std::uint16_t>(clamped * 24 / 100);
 }
 
 // Each channel's on-time = round(base × duty), at most base − 2.
