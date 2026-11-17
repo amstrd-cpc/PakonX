@@ -98,7 +98,7 @@ xattr -dr com.apple.quarantine /Applications/PakonX.app
 </details>
 
 <details>
-<summary><b>Linux (x64)</b></summary>
+<summary><b>Linux (x64): Ubuntu 24.04+, Debian 13+, Fedora 40+ or similar</b></summary>
 
 **Debian / Ubuntu:** `sudo apt install ./PakonX_1.0.0_amd64.deb` (installs the USB permission rule too).
 

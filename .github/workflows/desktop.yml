@@ -25,14 +25,12 @@ env:
 
 jobs:
   linux:
-    runs-on: ubuntu-22.04 # oldest glibc still supported: the AppImage runs on more distros
+    runs-on: ubuntu-24.04 # g++-13 in the base system (Launchpad's toolchain PPA proved unreliable)
     steps:
       - uses: actions/checkout@v4
       - name: Toolchain and libraries
         run: |
-          # Launchpad answers 503 now and then: retry downloads.
           echo 'Acquire::Retries "5";' | sudo tee /etc/apt/apt.conf.d/80-retries
-          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt-get update
           sudo apt-get install -y g++-13 cmake pkg-config libusb-1.0-0-dev \
             libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
