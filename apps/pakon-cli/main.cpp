@@ -675,7 +675,7 @@ int main(int argc, char** argv) {
         } else if (command.empty()) {
             command = arg;
         } else if (command == "scan" || command == "eeprom" || command == "frames" ||
-                   command == "film-drive" || command == "f235-plan") {
+                   command == "film-drive" || command == "f235-plan" || command == "boot") {
             // Everything after `scan` belongs to the scan command's own
             // argument validation (scan_cli.cpp); it decides usage
             // errors before any device entry point can run.
