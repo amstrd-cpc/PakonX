@@ -1,6 +1,6 @@
 [package]
 name = "pakonx"
-version = "1.0.0"
+version = "1.0.1"
 description = "PakonX — desktop front end for the Kodak/Pakon F-X35 scanners"
 edition = "2021"
 publish = false

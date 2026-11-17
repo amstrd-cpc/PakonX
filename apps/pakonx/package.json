@@ -1,7 +1,7 @@
 {
   "name": "pakonx",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "scripts": {
     "sync-design": "node scripts/sync-design.mjs",
