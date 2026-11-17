@@ -288,11 +288,14 @@ int run_look(const std::string& raw_path, const process::ScanInfo& info,
         }
     };
     {
-        std::vector<std::jthread> pool;
+        std::vector<std::thread> pool; // std::thread: Apple's libc++ has no jthread
         for (std::size_t w = 1; w < workers; ++w) {
             pool.emplace_back(work_on, w);
         }
         work_on(0);
+        for (auto& t : pool) {
+            t.join();
+        }
     }
     for (const auto& e : errors) {
         if (!e.empty()) {

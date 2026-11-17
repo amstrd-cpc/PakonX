@@ -2,6 +2,8 @@
 
 #include <cctype>
 #include <charconv>
+#include <cstdlib>
+#include <string>
 #include <format>
 
 namespace pakon::process {
@@ -141,13 +143,20 @@ private:
         if (word("null")) {
             return Json();
         }
-        double d = 0;
-        const auto* first = s_.data() + pos_;
-        const auto [ptr, ec] = std::from_chars(first, s_.data() + s_.size(), d);
-        if (ec != std::errc{} || ptr == first) {
+        // strtod, not from_chars: Apple's libc++ has no floating-point
+        // from_chars. pakon-cli never sets a locale, so '.' is the point.
+        std::size_t end = pos_;
+        while (end < s_.size() && (std::isdigit(static_cast<unsigned char>(s_[end])) || s_[end] == '-' ||
+                                   s_[end] == '+' || s_[end] == '.' || s_[end] == 'e' || s_[end] == 'E')) {
+            ++end;
+        }
+        const std::string text(s_.substr(pos_, end - pos_));
+        char* stop = nullptr;
+        const double d = std::strtod(text.c_str(), &stop);
+        if (text.empty() || stop != text.c_str() + text.size()) {
             return fail("number expected");
         }
-        pos_ += static_cast<std::size_t>(ptr - first);
+        pos_ = end;
         return Json(d);
     }
 
