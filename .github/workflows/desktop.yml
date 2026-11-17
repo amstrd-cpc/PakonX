@@ -100,7 +100,10 @@ jobs:
             -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DPAKON_BUILD_TESTS=OFF
           cmake --build build -j
           lipo -info build/apps/pakon-cli/pakon-cli
-          cp build/apps/pakon-cli/pakon-cli apps/pakonx/src-tauri/binaries/pakon-cli-universal-apple-darwin
+          # Tauri's universal build checks each architecture's sidecar name too.
+          for t in universal-apple-darwin aarch64-apple-darwin x86_64-apple-darwin; do
+            cp build/apps/pakon-cli/pakon-cli apps/pakonx/src-tauri/binaries/pakon-cli-$t
+          done
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - uses: dtolnay/rust-toolchain@stable
