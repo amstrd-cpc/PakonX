@@ -26,8 +26,6 @@ Scan, develop and save your film on Windows, macOS and Linux, without the old XP
 <br>
 
 <a href="https://ko-fi.com/laborantsoftworks"><img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support me on Ko-fi"></a>
-<a href="https://github.com/sponsors/amstrd-cpc"><img src="https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="GitHub Sponsors" height="36"></a>
-
 </div>
 
 ---
